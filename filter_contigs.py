@@ -12,7 +12,7 @@ import sys
 #                 Ex: "C://Users/caleb/OneDrive/Desktop/"
 
 
-#path_to_seq_lengths, path_to_sites, min_threshold, path_to_output, minThreshold = sys.argv[0], sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+path_to_seq_lengths, path_to_sites, min_threshold = sys.argv[1], sys.argv[2], sys.argv[3]
 
 #Example:
 #path_to_seq_lengths, path_to_sites, min_threshold, path_to_output = "C://Users/caleb/OneDrive/Desktop/contigs_SeqLength2.tsv", "C://Users/caleb/OneDrive/Desktop/alignment_pi_locs_m25.txt", 0.1, "C://Users/caleb/OneDrive/Desktop/"
@@ -35,25 +35,18 @@ with open(path_to_seq_lengths) as file:
 
 grep = lambda searchString, stringList: [j for j in stringList if j.__contains__(searchString)]
 
-print(contigs)
-contig_names = [i.split()[0] for i in contigs]
-info_sites = [len((grep(i, sites))) for i in contig_names]
-possible_sites = [float(i.split()[1]) for i in contigs]
 
-relative_info = [info_sites[i]/possible_sites[i] for i in range(len(possible_sites))]
+contig_names = [i.split(",")[0] for i in contigs]
+info_sites = [len((grep(i, sites))) for i in contig_names][2:]
+possible_sites = [i.split(",")[1] for i in contigs]
+possible_sites = map(int, possible_sites[1:])
 
-contig_ranking = {
-    "names" : contig_names,
-    "relative_information" : relative_info
-}
+min_threshold = float(min_threshold)
 
-minThreshold = .04
-qualifiers = [i >= minThreshold for i in relative_info]
 
-for i in range(len(qualifiers)):
-    if(qualifiers[i]):
-        print(contig_names[i] + "   " + str(relative_info[i]))
-    else:
-        continue
+for i in range(len(info_sites)):
+    if(float(info_sites[i]) / float(possible_sites[i]) >= min_threshold):
+        print contig_names[i] + "   " + str(float(info_sites[i]) / float(possible_sites[i]))
+
 
 
